@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+  <head>
+    <title>nbunicorn</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <style tyoe="text/css">
+      #logo { 
+        background-image: url(./img/nbunicorn-text-no-margin.png);
+        background-size: contain;
+        background-repeat: no-repeat;
+        width: 100%;
+        height: 0;
+        padding-top: 24.35%;
+        margin: 50px 0 10px 0;
+      }
+
+      body {
+        background-color: rgb(246, 248, 250);
+      }
+
+      footer {
+        margin-top: 30px;
+      }
+
+      #incubating {
+        margin: 30px 0 30px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id='logo'></div>
+      <p class="lead">The easiest way from notebook to MVP, so you can focus more on <strong>data science</strong>, and less on <strong>infrastructure</strong>.</p>
+
+      
+      <div class="card" id="incubating">
+        <div class="card-body">
+          <p>nbunicorn is incubating with new users by invitation. Join the waitlist and we'll keep you up to date on our progress.</p>
+          <form id="signup">
+            <div class="input-group">
+              <input type="email" class="form-control" name="email" placeholder="email@address.com">
+              <div class="input-group-append">
+                <button class="btn btn-secondary" type="submit">Sign up</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <p>
+        <h4>Latest updates</h4>
+        <ul>
+            <li><em>nbwhat? A primer on notebooks for data science</em> <a href="http://medium.com/nbunicorn" class="text-secondary">Read more</a></li>
+        </ul>
+      </p>
+
+      <footer>
+        <small>
+          <div class="row">
+            <div class="col-4">
+              <a href="/about" class="text-dark">About</a>
+            </div>
+            <div class="col-4">
+              <a href="http://medium.com/nbunicorn" class="text-dark">Blog</a>
+            </div>
+            <div class="col-4">
+              <a href="http://twitter.com/nbunicorn" class="text-dark">Twitter</a>
+            </div>
+            <div class="col-4">
+              <a href="http://github.com/nbunicorn" class="text-dark">GitHub</a>
+            </div>
+            <div class="col-4">
+              <a href="mailto:hello@nbunicorn.com" class="text-dark">Contact nbunicorn</a>
+            </div>
+            <div class="col-4">
+              <a href="/legal" class="text-dark">Privacy & Terms</a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <p><center>we <span class="text-danger">&hearts;</span> nb</center></p>
+            </div>
+          </div>
+        </small>
+      </footer>
+    </div>
+   
+      
+
+    <script>
+      document.getElementById("signup").addEventListener("submit", function(event){
+        event.preventDefault();
+        window.location = "https://docs.google.com/forms/d/e/1FAIpQLSdvUx4Xur604v9E5SuaRrUPAx6Cgd-mlgcPWNvtAoADBc-yJQ/viewform?usp=pp_url&entry.1106452456=" + document.getElementsByName('email')[0].value;
+      });
+    </script>
+  </body>
+</html>
