@@ -216,23 +216,17 @@
           loadDeployer();
         }
         
-
-
-
-        
-
       });
-
     </script>
   </head>
   <body>    
     <div class="container" id="main">
-
+      <!-- login buttons -->
       <div class="clearfix" style="height: 47px;">
         <button  id="btn-login" class="float-right btn btn-sm btn-light my-2 my-sm-0" type="submit" style="display:none;">Login with GitHub</button>
         <button  id="btn-logout" class="float-right btn btn-sm btn-light my-2 my-sm-0" type="submit" style="display:none;">Logout</button>
       </div>
-
+      <!-- login success can deploy -->
       <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert-can-deploy" style="display:none;">
         <h4 class="alert-heading">Welcome!</h4>
         You're in. Welcome to <strong>nbunicorn</strong>! Check out the instructions below to deploy your first notebook in a few simple steps.
@@ -242,21 +236,21 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-
+      <!-- login success no deploy -->
       <div class="alert alert-warning" role="alert" id="alert-no-deploy" style="display:none;">
         Uh oh. Looks like your account is not authorised for deployment just yet. Join the waitlist below! (<em>Reference:</em> <code id="userId"></code>)
       </div>
-     
+      <!-- header -->
       <div id='logo'></div>
       <p class="lead">The easiest way from notebook to impact, so you can focus more on <strong>data science</strong>, and less on <strong>infrastructure</strong>.</p>
-      
+      <!-- can deploy quickstart -->
       <div class="card text-white bg-dark" id="card-can-deploy"  style="display:none; width: 100%;">
         <h6 class="card-header">Quickstart guide</h6>
         <div class="card-body">
           <p><kbd>pip install nbunicorn</kbd> to install the nbunicorn package.</p>
         </div>
       </div>
-
+      <!-- subscribe -->
       <div class="card" id="incubating">
         <div class="card-body">
           <p><strong>nbunicorn</strong> is incubating with new users by invitation. Join the waitlist and we'll keep you up to date on our progress.</p>
@@ -270,6 +264,7 @@
           </form>
         </div>
       </div>
+      <!-- updates -->
       <p>
         <h4>Latest updates</h4>
         <ul>
@@ -277,6 +272,7 @@
             <li><em>nbwhat? A primer on notebooks for data science</em> <a href="https://medium.com/nbunicorn/nbwhat-a-primer-on-notebooks-for-data-science-2b48a36ff547" class="text-secondary">Read more</a></li>
         </ul>
       </p>
+      <!-- footer -->
       <footer>
         <small>
           <div class="row">
@@ -306,7 +302,7 @@
           </div>
         </small>
       </footer>
-
+      <!-- about -->
       <div class="modal fade" id="about" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-full" role="document">
           <div class="modal-content">
@@ -317,14 +313,18 @@
                 </button>
             </div>
             <div class="modal-body" id="result">
+              <br>
               <p><img src="https://scontent.fsyd7-1.fna.fbcdn.net/v/t1.0-9/52011388_378653672983495_2187452338778669056_n.jpg?_nc_cat=106&_nc_ht=scontent.fsyd7-1.fna&oh=3bee9cb1b398e9b433870f6962c42971&oe=5D6E9524" width="200px" height="200px" class="mx-auto d-block"></p>
+              <br>
               <p><strong>nbunicorn</strong> is the easiest way to turn a Jupyter notebook into a real product!</p>
-              <p>As data scientists, we understand just how difficult it is to create a great algorithm to a worthy problem. As engineers, we also know how challenging deploying, securing and scaling complex data science solutions can be, and we built <strong>nbunicorn</strong> to solve just this.</p>
+              <p>As data scientists, we understand just how difficult it is to create a great algorithm to solve a worthy problem. As engineers, we also know how challenging deploying, securing and scaling complex data science solutions can be... So we built <strong>nbunicorn</strong> to solve just this.</p>
+              <br>
               <h3>How it works</h3>
               <p>With <strong>nbunicorn</strong>, you have everything you need to go from notebook to product, with only a few lines of code! Just import our package, decorate your functions, and upload your notebook.</p>
               <p>We'll convert it into a REST API, build all the complex dependencies into a container, and deploy it to a highly scalable cluster backed by Google Cloud.</p>
               <p>You can call the API directly, or embed our simple JavaScript client <code>nbunicorn.js</code> to access your functions in a website with ease!</p>
-              <h3>Meet the team</h3>
+              <br>
+              <h3>Who made it</h3>
               <h6 class="mt-0">Blair Hudson (<a href='https://twitter.com/blairhudson' target='_blank'>@blairhudson</a>)</h6>
               <div class="media">
                 <img class="mr-3" src="https://instagram.fsyd7-1.fna.fbcdn.net/vp/65defaaef10beadf2c84cafaa6cacb03/5D3EDB83/t51.2885-15/e35/c141.0.798.798a/s240x240/57026484_1081237828729900_2371537046527876778_n.jpg?_nc_ht=instagram.fsyd7-1.fna.fbcdn.net" width="110px" height="110px" style="margin-top: 6px">
@@ -332,6 +332,7 @@
                   <small>Blair is the creator of <strong>nbunicorn</strong>. With a passion for data and innovation, and deep experience across commercialisng advanced data-driven solutions, his vision seeks to enable problem solvers everywhere to design and build great data products with ease.</small>
                 </div>
               </div>
+              <br>
             </div>
           </div>
         </div>
