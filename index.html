@@ -43,105 +43,169 @@
           window.location = "https://docs.google.com/forms/d/e/1FAIpQLSdvUx4Xur604v9E5SuaRrUPAx6Cgd-mlgcPWNvtAoADBc-yJQ/viewform?usp=pp_url&entry.1106452456=" + document.getElementsByName('email')[0].value;
         });
 
-        var idToken;
-        var accessToken;
-        var expiresAt;
+        var auth;
 
         var webAuth = new auth0.WebAuth({
           domain: 'nbunicorn.auth0.com',
           clientID: 'hdVkAV2OPzugycruV7FY0emQlVrVrFDL',
           responseType: 'token id_token',
-          scope: 'openid',
+          scope: 'openid email',
           redirectUri: window.location.href
         });
 
         var loginBtn = document.getElementById('btn-login');
+        var logoutBtn = document.getElementById('btn-logout');
+
+        var alertCanDeploy = document.getElementById('alert-can-deploy');
+        var cardCanDeploy = document.getElementById('card-can-deploy');
+        var alertNoDeploy = document.getElementById('alert-no-deploy');
 
         loginBtn.addEventListener('click', function(e) {
           e.preventDefault();
           webAuth.authorize();
         });
 
-        // buttons and event listeners
-        var loginBtn = document.getElementById('btn-login');
-        var logoutBtn = document.getElementById('btn-logout');
+        function isLoggedIn(){
+          // load auth
+          auth = JSON.parse(localStorage.getItem('auth'));
 
-        logoutBtn.addEventListener('click', logout);
+          // set email in subscribe form automatically :D
+          document.getElementsByName('email')[0].value = auth.idTokenPayload.email;
 
-        function handleAuthentication() {
-          webAuth.parseHash(function(err, authResult) {
-            if (authResult && authResult.accessToken && authResult.idToken) {
-              window.location.hash = '';
-              localLogin(authResult);
-              loginBtn.style.display = 'none';
-            } else if (err) {
-              console.log(err);
-              alert(
-                'Error: ' + err.error + '. Check the console for further details.'
-              );
-            }
-            displayButtons();
-          });
+          document.getElementById('userId').innerHTML = auth.idTokenPayload.sub;
+
+          // run deploy check
+          deployCheck(auth.accessToken);
         }
 
-        function localLogin(authResult) {
-          // Set isLoggedIn flag in localStorage
-          localStorage.setItem('isLoggedIn', 'true');
-          // Set the time that the access token will expire at
-          expiresAt = JSON.stringify(
-            authResult.expiresIn * 1000 + new Date().getTime()
-          );
-          accessToken = authResult.accessToken;
-          idToken = authResult.idToken;
-        }
+        function loadDeployer(){
+          canDeploy = localStorage.getItem('canDeploy')
 
-        function renewTokens() {
-          webAuth.checkSession({}, (err, authResult) => {
-            if (authResult && authResult.accessToken && authResult.idToken) {
-              localLogin(authResult);
-              console.log(authResult);
-            } else if (err) {
-              alert(
-                  'Could not get a new token '  + err.error + ':' + err.error_description + '.'
-              );
-              //logout();
-            }
-            displayButtons();
-          });
-        }
+          // if can deploy
+          if (canDeploy === 'true'){
 
-        function logout() {
-          // Remove isLoggedIn flag from localStorage
-          localStorage.removeItem('isLoggedIn');
-          // Remove tokens and expiry time
-          accessToken = '';
-          idToken = '';
-          expiresAt = 0;
-          displayButtons();
-        }
-
-        function isAuthenticated() {
-          // Check whether the current time is past the
-          // Access Token's expiry time
-          var expiration = parseInt(expiresAt) || 0;
-          return localStorage.getItem('isLoggedIn') === 'true' && new Date().getTime() < expiration;
-        }
-
-        function displayButtons() {
-          if (isAuthenticated()) {
-            loginBtn.style.display = 'none';
-            logoutBtn.style.display = 'inline-block';
+            // show it
+            alertCanDeploy.style.display = 'inline-block';
+            cardCanDeploy.style.display = 'inline-block';
+            alertNoDeploy.style.display = 'none';
+            
+          // else hide it
           } else {
-            loginBtn.style.display = 'inline-block';
-            logoutBtn.style.display = 'none';
+            alertCanDeploy.style.display = 'none';
+            cardCanDeploy.style.display = 'none';
+            alertNoDeploy.style.display = 'inline-block';
           }
         }
 
-        if (localStorage.getItem('isLoggedIn') === 'true') {
-          renewTokens();
-        } else {
-          handleAuthentication();
+        function deployCheck(token){
+          var url = new URL("https://app.nbunicorn.com/can_deploy"),
+              queryParams = {token: token}
+          Object.keys(queryParams).forEach(key => url.searchParams.append(key, queryParams[key]));
+
+          var requestParams = {
+            method: "GET",
+            mode: "cors"
+          };
+
+          // async 
+          fetch(url, requestParams)
+            .then(function (data) {
+
+              return data.json();
+
+            })
+            .then(function (r) {
+
+              if (r.can_deploy == true) {
+
+                localStorage.setItem('canDeploy', 'true');
+              } else {
+
+                localStorage.setItem('canDeploy', 'false');
+              }
+
+              loadDeployer();
+
+            })
+            .catch(function (error) {
+
+              console.log('Request failed', error);
+
+            });
+
         }
+
+        function authLoop(){
+          // if logged in
+          if (localStorage.hasOwnProperty('expiresAt')){
+
+            // show logout button
+            logoutBtn.style.display = 'inline-block';
+
+            expiresAt = JSON.parse(localStorage.getItem('expiresAt'));
+
+            // if expired
+            if (new Date().getTime() > parseInt(expiresAt)) {
+
+              // remove expiry
+              localStorage.removeItem('expiresAt');
+
+              // run authorise loop
+              webAuth.authorize();
+            } else {
+
+              isLoggedIn();
+            }
+          } else {
+
+            // show login button
+            loginBtn.style.display = 'inline-block';
+          }
+        }
+
+        function logout(){
+          // remove expiry
+          localStorage.removeItem('expiresAt');
+          
+          // reload page
+          document.location.reload();
+        }
+
+        logoutBtn.addEventListener('click', logout);
+   
+
+        // async check if login attempted. store result if so
+        webAuth.parseHash(function(err, authResult) {
+
+          // if parsed
+          if (authResult && authResult.accessToken && authResult.idToken) {
+            
+            // hide hash
+            window.location.hash = '';
+
+            // store result
+            localStorage.setItem('auth', JSON.stringify(authResult));
+            
+            // calculate and store expiry
+            expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+            localStorage.setItem('expiresAt', JSON.stringify(expiresAt));
+
+          }
+
+          // check auth
+          authLoop();
+
+        });
+
+        // while we wait for the async, show screen based on local storage
+        if (localStorage.hasOwnProperty('canDeploy') && localStorage.hasOwnProperty('expiresAt')){
+          loadDeployer();
+        }
+        
+
+
+
+        
 
       });
 
@@ -154,9 +218,31 @@
         <button  id="btn-login" class="float-right btn btn-sm btn-light my-2 my-sm-0" type="submit" style="display:none;">Login with GitHub</button>
         <button  id="btn-logout" class="float-right btn btn-sm btn-light my-2 my-sm-0" type="submit" style="display:none;">Logout</button>
       </div>
+
+      <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert-can-deploy" style="display:none;">
+        <h4 class="alert-heading">Welcome!</h4>
+        You're in. Welcome to <strong>nbunicorn</strong>! Check out the instructions below to deploy your first notebook in a few simple steps.
+        <hr>
+        You can also always find more information in <a href='https://nbunicorn.readthedocs.io' target='_blank' class="alert-link">our docs</a>.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="alert alert-warning" role="alert" id="alert-no-deploy" style="display:none;">
+        Uh oh. Looks like your account is not authorised for deployment just yet. Join the waitlist below! (<em>Reference:</em> <code id="userId"></code>)
+      </div>
      
       <div id='logo'></div>
       <p class="lead">The easiest way from notebook to impact, so you can focus more on <strong>data science</strong>, and less on <strong>infrastructure</strong>.</p>
+      
+      <div class="card text-white bg-dark" id="card-can-deploy"  style="display:none; width: 100%;">
+        <h6 class="card-header">Quickstart guide</h6>
+        <div class="card-body">
+          <p><kbd>pip install nbunicorn</kbd> to install the nbunicorn package.</p>
+        </div>
+      </div>
+
       <div class="card" id="incubating">
         <div class="card-body">
           <p>nbunicorn is incubating with new users by invitation. Join the waitlist and we'll keep you up to date on our progress.</p>
@@ -207,6 +293,10 @@
         </small>
       </footer>
     </div>
+    <!-- Bootstrap4 -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-134339545-1"></script>
     <script>
