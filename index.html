@@ -32,8 +32,22 @@
         margin-top: 20px;
         max-width: 600px;
       }
+
+      .modal-full {
+        min-width: 100%;
+        margin: 0;
+      }
+
+      .modal-full .modal-content {
+        min-height: 100vh;
+        border-radius: 0px;
+        max-width: 600px;
+        width: 100%;
+        margin: 0 auto;
+        border: none;
+        padding: 24px;
+      }
     </style>
-    <script src="https://cdn.auth0.com/js/auth0/9.10/auth0.min.js"></script>
     <script type="text/javascript">
 
       window.addEventListener('load', function() {
@@ -245,7 +259,7 @@
 
       <div class="card" id="incubating">
         <div class="card-body">
-          <p>nbunicorn is incubating with new users by invitation. Join the waitlist and we'll keep you up to date on our progress.</p>
+          <p><strong>nbunicorn</strong> is incubating with new users by invitation. Join the waitlist and we'll keep you up to date on our progress.</p>
           <form id="signup">
             <div class="input-group">
               <input type="email" class="form-control" name="email" placeholder="email@address.com">
@@ -267,7 +281,7 @@
         <small>
           <div class="row">
             <div class="col-4">
-              <a href="/about" class="text-dark">About</a>
+              <a href="#about" class="text-dark" role="button" data-toggle="modal">About</a>
             </div>
             <div class="col-4">
               <a href="http://medium.com/nbunicorn" class="text-dark">Blog</a>
@@ -292,7 +306,39 @@
           </div>
         </small>
       </footer>
+
+      <div class="modal fade" id="about" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-full" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">About</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body" id="result">
+              <p><img src="https://scontent.fsyd7-1.fna.fbcdn.net/v/t1.0-9/52011388_378653672983495_2187452338778669056_n.jpg?_nc_cat=106&_nc_ht=scontent.fsyd7-1.fna&oh=3bee9cb1b398e9b433870f6962c42971&oe=5D6E9524" width="200px" height="200px" class="mx-auto d-block"></p>
+              <p><strong>nbunicorn</strong> is the easiest way to turn a Jupyter notebook into a real product!</p>
+              <p>As data scientists, we understand just how difficult it is to create a great algorithm to a worthy problem. As engineers, we also know how challenging deploying, securing and scaling complex data science solutions can be, and we built <strong>nbunicorn</strong> to solve just this.</p>
+              <h3>How it works</h3>
+              <p>With <strong>nbunicorn</strong>, you have everything you need to go from notebook to product, with only a few lines of code! Just import our package, decorate your functions, and upload your notebook.</p>
+              <p>We'll convert it into a REST API, build all the complex dependencies into a container, and deploy it to a highly scalable cluster backed by Google Cloud.</p>
+              <p>You can call the API directly, or embed our simple JavaScript client <code>nbunicorn.js</code> to access your functions in a website with ease!</p>
+              <h3>Meet the team</h3>
+              <h6 class="mt-0">Blair Hudson (<a href='https://twitter.com/blairhudson' target='_blank'>@blairhudson</a>)</h6>
+              <div class="media">
+                <img class="mr-3" src="https://pbs.twimg.com/profile_images/1114745499263750144/09Ro1Olj_400x400.jpg" width="80px" height="80px" style="margin-top: 6px">
+                <div class="media-body">
+                  <small>Blair is the creator of <strong>nbunicorn</strong>. With a passion for entrepreneurship and innovation, and deep experience across commercialisng advanced data-driven solutions, his vision seeks to enable problem solvers everywhere to design and build great data products with ease.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
+    </div>
+    <!-- Auth0 -->
+    <script src="https://cdn.auth0.com/js/auth0/9.10/auth0.min.js"></script>
     <!-- Bootstrap4 -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
