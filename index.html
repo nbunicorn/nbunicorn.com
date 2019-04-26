@@ -20,12 +20,12 @@
         background-color: rgb(246, 248, 250);
       }
 
-      footer {
-        margin-top: 30px;
+      .lead {
+        margin: 0;
       }
 
-      #incubating {
-        margin: 30px 0 30px 0;
+      footer {
+        margin-top: 30px;
       }
 
       #main {
@@ -47,18 +47,19 @@
         border: none;
         padding: 24px;
       }
+
+      .card {
+        margin-top: 30px;
+      }
     </style>
     <script type="text/javascript">
 
       window.addEventListener('load', function() {
 
-        document.getElementById("signup").addEventListener("submit", function(event){
-          event.preventDefault();
-          window.location = "https://docs.google.com/forms/d/e/1FAIpQLSdvUx4Xur604v9E5SuaRrUPAx6Cgd-mlgcPWNvtAoADBc-yJQ/viewform?usp=pp_url&entry.1106452456=" + document.getElementsByName('email')[0].value;
-        });
-
+        // localstorage of auth creds
         var auth;
 
+        // auth0 lib
         var webAuth = new auth0.WebAuth({
           domain: 'nbunicorn.auth0.com',
           clientID: 'hdVkAV2OPzugycruV7FY0emQlVrVrFDL',
@@ -67,29 +68,237 @@
           redirectUri: window.location.href
         });
 
+        // dom references
+
         var loginBtn = document.getElementById('btn-login');
         var logoutBtn = document.getElementById('btn-logout');
 
         var alertCanDeploy = document.getElementById('alert-can-deploy');
         var cardCanDeploy = document.getElementById('card-can-deploy');
+        var cardDeploy = document.getElementById('card-deploy');
         var alertNoDeploy = document.getElementById('alert-no-deploy');
+
+        var submitDeploy = document.getElementById('submit-deploy');
+        var submitDeployed = document.getElementById('submit-deployed');
+
+        var spinnerDeployments = document.getElementById('spinner-deployments');
+        var listDeployments = document.getElementById('list-deployments');
+
+        var labelDeploymentsUsed = document.getElementById('label-deployments-used');
+
+        var formSignup = document.getElementById("signup");
+        var formDeploy = document.getElementById("deploy");
+
+
+        // listeners
 
         loginBtn.addEventListener('click', function(e) {
           e.preventDefault();
           webAuth.authorize();
         });
 
+        logoutBtn.addEventListener('click', logout);
+
+        formSignup.addEventListener("submit", function(event){
+          event.preventDefault();
+          window.location = "https://docs.google.com/forms/d/e/1FAIpQLSdvUx4Xur604v9E5SuaRrUPAx6Cgd-mlgcPWNvtAoADBc-yJQ/viewform?usp=pp_url&entry.1106452456=" + document.getElementById('subscribe-email').value;
+        });
+
+        formDeploy.addEventListener("submit", function(event){
+          event.preventDefault();
+          deploy();
+        });
+
+
+        // onload code
+
+        // async check if login attempted. store result if so
+        webAuth.parseHash(function(err, authResult) {
+
+          // if parsed
+          if (authResult && authResult.accessToken && authResult.idToken) {
+            
+            // hide hash
+            window.location.hash = '';
+
+            // store result
+            localStorage.setItem('auth', JSON.stringify(authResult));
+            
+            // calculate and store expiry
+            expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+            localStorage.setItem('expiresAt', JSON.stringify(expiresAt));
+
+          }
+
+          // check auth
+          authLoop();
+
+        });
+
+        // while we wait for the async, show screen based on local storage
+        if (localStorage.hasOwnProperty('canDeploy') && localStorage.hasOwnProperty('expiresAt')){
+          loadDeployer();
+          loadDeployments();
+        }
+
+
+        // functions
+
+        function deploy(){
+
+          // animate button    
+          submitDeploy.style.display = 'none';
+          submitDeployed.style.display = 'inline-block';
+
+          var url = new URL("https://app.nbunicorn.com/deploy"),
+              queryParams = {token: auth.accessToken}
+          Object.keys(queryParams).forEach(key => url.searchParams.append(key, queryParams[key]));
+
+          var notebook = document.getElementById('file-notebook').files[0];
+
+          var formData = new FormData();
+          formData.append('notebook', notebook);
+
+          var requestParams = {
+            method: "POST",
+            mode: "cors",
+            // headers: {
+            //   "Content-Type": "multipart/form-data"
+            // },
+            body: formData
+          };
+
+          // async 
+          fetch(url, requestParams)
+            .then(function (data) {
+
+              return data.json();
+
+            })
+            .then(function (r) {
+
+              loadDeployments();
+              console.log(r);
+
+            })
+            .catch(function (error) {
+
+              console.log('Request failed', error);
+
+            })
+            .finally(function () {
+
+              // remove animation
+              submitDeploy.style.display = 'inline-block';
+              submitDeployed.style.display = 'none';
+
+            });
+        }
+
         function isLoggedIn(){
           // load auth
           auth = JSON.parse(localStorage.getItem('auth'));
 
           // set email in subscribe form automatically :D
-          document.getElementsByName('email')[0].value = auth.idTokenPayload.email;
+          document.getElementById('subscribe-email').value = auth.idTokenPayload.email;
 
+          // set user_id for reference
           document.getElementById('userId').innerHTML = auth.idTokenPayload.sub;
+
+          // set hidden auth token field(s)
+          document.getElementById('hidden-token').value = auth.accessToken;
+          console.log('accessToken: ' + auth.accessToken);
 
           // run deploy check
           deployCheck(auth.accessToken);
+
+          loadDeployer();
+          loadDeployments();
+        }
+
+        function loadDeployments(token){
+
+          // animate deploy button
+          submitDeploy.style.display = 'none';
+          submitDeployed.style.display = 'inline-block';
+
+          spinnerDeployments.style.display = 'inline-block';
+
+          labelDeploymentsUsed.innerHTML = '<span class="spinner-border spinner-border-sm float-right" role="status"></span>';
+
+          var url = new URL("https://app.nbunicorn.com/deployments"),
+              queryParams = {token: auth.accessToken}
+          Object.keys(queryParams).forEach(key => url.searchParams.append(key, queryParams[key]));
+
+          var requestParams = {
+            method: "GET",
+            mode: "cors"
+          };
+
+          // async 
+          fetch(url, requestParams)
+            .then(function (data) {
+
+              return data.json();
+
+            })
+            .then(function (r) {
+
+              if (r.limit_reached) {
+                // red badge
+                labelDeploymentsUsed.innerHTML = '<span class="badge badge-danger float-right">' + r.num_deployments + ' of ' + r.max_deployments + '</span>';
+
+                submitDeploy.disabled = true;
+
+              } else {
+                // normal badge
+                labelDeploymentsUsed.innerHTML = '<span class="badge badge-dark float-right">' + r.num_deployments + ' of ' + r.max_deployments + '</span>';
+
+                submitDeploy.disabled = false;
+              }
+
+              r.deployments.forEach(function(deployment) {
+
+
+
+                // if deployment not displayed
+                if ( document.getElementById(deployment) === null ){
+
+                  var li = document.createElement("li");
+                  li.id = deployment;
+
+                  var link = document.createElement("a");
+                  link.href = 'https://' + deployment + '.on.nbunicorn.com';
+                  link.target = '_blank';
+
+                  var text = document.createTextNode(deployment);
+                  
+                  link.appendChild(text);    
+                  li.appendChild(link);     
+                  listDeployments.appendChild(li);
+
+                }
+                
+              });
+
+              console.log(r)
+
+            })
+            .catch(function (error) {
+
+              console.log('Request failed', error);
+
+            })
+            .finally(function(){
+
+              // remove animation
+              submitDeploy.style.display = '';
+              submitDeployed.style.display = 'none';
+
+              spinnerDeployments.style.display = 'none';
+
+            });
+
         }
 
         function loadDeployer(){
@@ -99,19 +308,36 @@
           if (canDeploy === 'true'){
 
             // show it
-            alertCanDeploy.style.display = 'inline-block';
-            cardCanDeploy.style.display = 'inline-block';
-            alertNoDeploy.style.display = 'none';
+            var allDeploy = document.getElementsByClassName('deploy');
+            for (var i = 0; i < allDeploy.length; i++) {
+              allDeploy[i].style.display = 'inline-block';
+            }
+
+            // hide no deploys
+            var allNoDeploy = document.getElementsByClassName('no-deploy');
+            for (var i = 0; i < allNoDeploy.length; i++) {
+              allNoDeploy[i].style.color = 'none';
+            }
             
           // else hide it
           } else {
-            alertCanDeploy.style.display = 'none';
-            cardCanDeploy.style.display = 'none';
-            alertNoDeploy.style.display = 'inline-block';
+            // hide deploys
+            var allDeploy = document.getElementsByClassName('deploy');
+            for (var i = 0; i < allDeploy.length; i++) {
+              allDeploy[i].style.display = 'none';
+            }
+
+            // show no deploys
+            var allNoDeploy = document.getElementsByClassName('no-deploy');
+            for (var i = 0; i < allNoDeploy.length; i++) {
+              allNoDeploy[i].style.color = 'inline-block';
+            }
           }
+
         }
 
         function deployCheck(token){
+          
           var url = new URL("https://app.nbunicorn.com/can_deploy"),
               queryParams = {token: token}
           Object.keys(queryParams).forEach(key => url.searchParams.append(key, queryParams[key]));
@@ -184,37 +410,6 @@
           // reload page
           document.location.reload();
         }
-
-        logoutBtn.addEventListener('click', logout);
-   
-
-        // async check if login attempted. store result if so
-        webAuth.parseHash(function(err, authResult) {
-
-          // if parsed
-          if (authResult && authResult.accessToken && authResult.idToken) {
-            
-            // hide hash
-            window.location.hash = '';
-
-            // store result
-            localStorage.setItem('auth', JSON.stringify(authResult));
-            
-            // calculate and store expiry
-            expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
-            localStorage.setItem('expiresAt', JSON.stringify(expiresAt));
-
-          }
-
-          // check auth
-          authLoop();
-
-        });
-
-        // while we wait for the async, show screen based on local storage
-        if (localStorage.hasOwnProperty('canDeploy') && localStorage.hasOwnProperty('expiresAt')){
-          loadDeployer();
-        }
         
       });
     </script>
@@ -227,7 +422,7 @@
         <button  id="btn-logout" class="float-right btn btn-sm btn-light my-2 my-sm-0" type="submit" style="display:none;">Logout</button>
       </div>
       <!-- login success can deploy -->
-      <div class="alert alert-success alert-dismissible fade show" role="alert" id="alert-can-deploy" style="display:none;">
+      <div class="alert alert-success alert-dismissible fade show deploy" role="alert" id="alert-can-deploy" style="display:none;">
         <h4 class="alert-heading">Welcome!</h4>
         You're in. Welcome to <strong>nbunicorn</strong>! Check out the instructions below to deploy your first notebook in a few simple steps.
         <hr>
@@ -237,28 +432,62 @@
         </button>
       </div>
       <!-- login success no deploy -->
-      <div class="alert alert-warning" role="alert" id="alert-no-deploy" style="display:none;">
+      <div class="alert alert-warning no-deploy" role="alert" id="alert-no-deploy" style="display:none;">
         Uh oh. Looks like your account is not authorised for deployment just yet. Join the waitlist below! (<em>Reference:</em> <code id="userId"></code>)
       </div>
       <!-- header -->
       <div id='logo'></div>
       <p class="lead">The easiest way from notebook to impact, so you can focus more on <strong>data science</strong>, and less on <strong>infrastructure</strong>.</p>
       <!-- can deploy quickstart -->
-      <div class="card text-white bg-dark" id="card-can-deploy"  style="display:none; width: 100%;">
-        <h6 class="card-header">Quickstart guide</h6>
+      <div class="card text-dark deploy" id="card-can-deploy"  style="display:none; width: 100%;">
+        <h6 class="card-header">Get started</h6>
         <div class="card-body">
-          <p><kbd>pip install nbunicorn</kbd> to install the nbunicorn package.</p>
+          <p>Run <kbd>pip install nbunicorn</kbd> to install the nbunicorn package.</p>
+          <p>Import the package with <kbd>import nbunicorn</kbd> in the first cell of your notebook.</p>
+          <p>For each function you want nbunicorn to expose, decorate the function with <kbd>@nbunicorn.expose</kbd>.</p>
+          <p>Your functions should look like this:</p>
+          <p><div style="padding-left: 20px;"><code><b>@nbunicorn</b>.<em>expose</em><br>def <b>your_function(</b><em>x</em><b>)</b>:<br>&nbsp;&nbsp;&nbsp;&nbsp;return <em>x</em></code></div></p>
+          <p>Now, select your notebook below and hit deploy!<p>
+        </div>
+      </div>
+      <!-- can deploy deploy form -->
+      <div class="card text-dark deploy" id="card-deploy" style="display:none; width: 100%;">
+        <h6 class="card-header">Deploy a notebook</h6>
+        <div class="card-body">
+          <form id="deploy" action="https://app.nbunicorn.com/deploy" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="file-notebook">Your notebook</label>
+              <input type="file" name="notebook" class="form-control-file" id="file-notebook">
+              <small id="file-notebook-help" class="form-text text-muted">Accepts a Jupyter notebook (.ipynb)</small>
+            </div>
+            <input type="hidden" name="token" class="form-control-file" id="hidden-token">
+            <button type="submit" class="btn btn-dark" id="submit-deploy" style="width: 77px;">Deploy</button>
+            <button type="submit" class="btn btn-dark" id="submit-deployed" style="width: 77px;display: none;" disabled>
+              <span class="spinner-border spinner-border-sm" role="status"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+      <!-- can deploy deployments  -->
+      <div class="card text-dark deploy" id="card-deploy" style="display:none; width: 100%;">
+        <h6 class="card-header">Your deployments&nbsp;<span id="label-deployments-used"></span></h6>
+        <div class="card-body">
+          <p>
+            <ul id="list-deployments"></ul>
+            <span class="spinner-border spinner-border-sm" role="status" id="spinner-deployments"></span>
+          </p>
         </div>
       </div>
       <!-- subscribe -->
-      <div class="card" id="incubating">
+      <div class="card" style="width: 100%;">
+        <h6 class="card-header">Stay up to date</h6>
         <div class="card-body">
-          <p><strong>nbunicorn</strong> is incubating with new users by invitation. Join the waitlist and we'll keep you up to date on our progress.</p>
-          <form id="signup">
+          <p><strong>nbunicorn</strong> is incubating with new users by invitation. Subscribe and we'll keep you up to date on our progress.</p>
+          <form id="signup" action="https://docs.google.com/forms/d/e/1FAIpQLSdvUx4Xur604v9E5SuaRrUPAx6Cgd-mlgcPWNvtAoADBc-yJQ/viewform?usp=pp_url">
             <div class="input-group">
-              <input type="email" class="form-control" name="email" placeholder="email@address.com">
+              <input type="email" class="form-control" id="subscribe-email" name="entry.1106452456" placeholder="email@address.com">
               <div class="input-group-append">
-                <button class="btn btn-secondary" type="submit">Subscribe</button>
+                <button class="btn btn-dark" type="submit">Subscribe</button>
               </div>
             </div>
           </form>
@@ -340,7 +569,7 @@
             </div>
           </div>
         </div>
-    </div>
+      </div>
     </div>
     <!-- Auth0 -->
     <script src="https://cdn.auth0.com/js/auth0/9.10/auth0.min.js"></script>
