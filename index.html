@@ -178,7 +178,6 @@
             .then(function (r) {
 
               loadDeployments();
-              console.log(r);
 
             })
             .catch(function (error) {
@@ -259,8 +258,6 @@
 
               r.deployments.forEach(function(deployment) {
 
-
-
                 // if deployment not displayed
                 if ( document.getElementById(deployment) === null ){
 
@@ -280,8 +277,6 @@
                 }
                 
               });
-
-              console.log(r)
 
             })
             .catch(function (error) {
@@ -316,7 +311,7 @@
             // hide no deploys
             var allNoDeploy = document.getElementsByClassName('no-deploy');
             for (var i = 0; i < allNoDeploy.length; i++) {
-              allNoDeploy[i].style.color = 'none';
+              allNoDeploy[i].style.display = 'none';
             }
             
           // else hide it
@@ -330,7 +325,7 @@
             // show no deploys
             var allNoDeploy = document.getElementsByClassName('no-deploy');
             for (var i = 0; i < allNoDeploy.length; i++) {
-              allNoDeploy[i].style.color = 'inline-block';
+              allNoDeploy[i].style.display = 'inline-block';
             }
           }
 
