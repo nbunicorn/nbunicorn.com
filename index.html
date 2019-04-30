@@ -261,18 +261,40 @@
                 // if deployment not displayed
                 if ( document.getElementById(deployment) === null ){
 
-                  var li = document.createElement("li");
-                  li.id = deployment;
+                  console.log(deployment);
 
-                  var link = document.createElement("a");
-                  link.href = 'https://' + deployment + '.on.nbunicorn.com';
-                  link.target = '_blank';
+                  var deploymentNode = document.createElement('div');
+                  deploymentNode.classList = ["card", "border-light"];
+                  deploymentNode.id = deployment;
+                  deploymentNode.style.marginTop = 0;
 
-                  var text = document.createTextNode(deployment);
-                  
-                  link.appendChild(text);    
-                  li.appendChild(link);     
-                  listDeployments.appendChild(li);
+                  deploymentNode.innerHTML = `<h6 class="card-header"><small><b>
+                  ` + deployment + `</b>
+                                            <a href="https://` + deployment + `.on.nbunicorn.com" class="align-middle badge badge-dark float-right" target="_blank">https://` + deployment + `.on.nbunicorn.com</a>
+                                          
+                                          </small>
+                                          </h6>
+                                          <div class="card-body">
+                                          <small>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button href="#" class="btn btn-outline-dark btn-sm" disabled>Download</button></div>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
+                                                <button href="#" class="btn btn-outline-danger btn-sm" disabled>Teardown</button>
+                                              </div>
+                                              </small>
+                                            </div>
+
+                                          
+                                          <ul class="list-group list-group-flush">
+                                          <small>
+                                            <li class="list-group-item">Available endpoints will display here in a future release.</li>
+                                             </small>
+                                          </ul>
+
+                                         
+                                          `;  
+                  listDeployments.appendChild(deploymentNode);
 
                 }
                 
@@ -464,14 +486,12 @@
         </div>
       </div>
       <!-- can deploy deployments  -->
-      <div class="card text-dark deploy" id="card-deploy" style="display:none; width: 100%;">
+      <div class="card deploy" id="card-deploy" style="display:none; width: 100%;">
         <h6 class="card-header">Your deployments&nbsp;<span id="label-deployments-used"></span></h6>
-        <div class="card-body">
-          <p>
-            <ul id="list-deployments"></ul>
-            <span class="spinner-border spinner-border-sm" role="status" id="spinner-deployments"></span>
-          </p>
+        <div class="card-body" style="padding: 0px">
+          <div id="list-deployments"></div>
         </div>
+        <center><div class="spinner-border spinner-border-sm" role="status" id="spinner-deployments" style="margin: 20px auto; width: 16px; height: 16px; display: block;"></div></center>
       </div>
       <!-- subscribe -->
       <div class="card" style="width: 100%;">
