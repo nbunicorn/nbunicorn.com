@@ -230,6 +230,13 @@
 
               loadDeployments();
 
+              // remove torndown deployment just in case the request hasn't caught up yet
+              if ( document.getElementById(project) !== null ){
+
+                document.getElementById(project).remove();
+
+              }
+
             })
             .catch(function (error) {
 
@@ -306,40 +313,20 @@
                 submitDeploy.disabled = false;
               }
 
-              r.deployments.forEach(function(deployment) {
+              if (r.num_deployments == 0) {
 
-                // if deployment not displayed
-                if ( document.getElementById(deployment) === null ){
-
-                  console.log(deployment);
+                if ( document.getElementById('no-deployments') === null ){
 
                   var deploymentNode = document.createElement('div');
                   deploymentNode.classList = ["card", "border-light"];
-                  deploymentNode.id = deployment;
+                  deploymentNode.id = 'no-deployments';
                   deploymentNode.style.marginTop = 0;
 
-                  deploymentNode.innerHTML = `<h6 class="card-header"><small><b>
-                  ` + deployment + `</b>
-                                            <a href="https://` + deployment + `.on.nbunicorn.com" class="align-middle badge badge-dark float-right" target="_blank">https://` + deployment + `.on.nbunicorn.com</a>
-                                          
-                                          </small>
-                                          </h6>
-                                          <div class="card-body  deployment-buttons">
-                                            <small>
-                                              <div class="btn-group btn-group-sm" role="group">
-                                                  <button href="#" class="btn btn-outline-dark btn-sm" disabled>Download</button>
-                                              </div>
-                                              <div class="btn-group btn-group-sm" role="group">
-                                                  <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
-                                                  <button href="#" class="btn btn-outline-danger btn-sm" onclick="teardown(this, '`+ deployment +`')">Teardown</button>
-                                              </div>
-                                            </small>
-                                          </div>
-
+                  deploymentNode.innerHTML = `
                                           
                                           <ul class="list-group list-group-flush">
                                           <small>
-                                            <li class="list-group-item">Available endpoints will display here in a future release.</li>
+                                            <li class="list-group-item">You haven't deployed any notebooks yet!</li>
                                              </small>
                                           </ul>
 
@@ -348,8 +335,61 @@
                   listDeployments.appendChild(deploymentNode);
 
                 }
-                
-              });
+
+              } else {
+
+                if ( document.getElementById('no-deployments') !== null ){
+
+                  document.getElementById('no-deployments').remove();
+
+                }
+
+                r.deployments.forEach(function(deployment) {
+
+                  // if deployment not displayed
+                  if ( document.getElementById(deployment) === null ){
+
+                    console.log(deployment);
+
+                    var deploymentNode = document.createElement('div');
+                    deploymentNode.classList = ["card", "border-light"];
+                    deploymentNode.id = deployment;
+                    deploymentNode.style.marginTop = 0;
+
+                    deploymentNode.innerHTML = `<h6 class="card-header"><small><b>
+                    ` + deployment + `</b>
+                                              <a href="https://` + deployment + `.on.nbunicorn.com" class="align-middle badge badge-dark float-right" target="_blank">https://` + deployment + `.on.nbunicorn.com</a>
+                                            
+                                            </small>
+                                            </h6>
+                                            <div class="card-body  deployment-buttons">
+                                              <small>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <button href="#" class="btn btn-outline-dark btn-sm" disabled>Download</button>
+                                                </div>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
+                                                    <button href="#" class="btn btn-outline-danger btn-sm" onclick="teardown(this, '`+ deployment +`')">Teardown</button>
+                                                </div>
+                                              </small>
+                                            </div>
+
+                                            
+                                            <ul class="list-group list-group-flush">
+                                            <small>
+                                              <li class="list-group-item">Available endpoints will display here in a future release.</li>
+                                               </small>
+                                            </ul>
+
+                                           
+                                            `;  
+                    listDeployments.appendChild(deploymentNode);
+
+                  }
+                  
+                });
+
+              }
 
             })
             .catch(function (error) {
