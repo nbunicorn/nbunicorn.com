@@ -345,18 +345,23 @@
                 r.deployments.forEach(function(deployment) {
 
                   // if deployment not displayed
-                  if ( document.getElementById(deployment) === null ){
+                  if ( document.getElementById(deployment.name) === null ){
 
                     console.log(deployment);
 
+                    var optionNode = document.createElement('option');
+                    optionNode.text = deployment.name;
+                    selectRedeploy.appendChild(optionNode);
+
+
                     var deploymentNode = document.createElement('div');
                     deploymentNode.classList = ["card", "border-light"];
-                    deploymentNode.id = deployment;
+                    deploymentNode.id = deployment.name;
                     deploymentNode.style.marginTop = 0;
 
                     deploymentNode.innerHTML = `<h6 class="card-header"><small><b>
-                    ` + deployment + `</b>
-                                              <a href="https://` + deployment + `.on.nbunicorn.com" class="align-middle badge badge-dark float-right" target="_blank">https://` + deployment + `.on.nbunicorn.com</a>
+                    ` + deployment.name + `</b>
+                                              <a href="https://` + deployment.name + `.on.nbunicorn.com" class="align-middle badge badge-dark float-right" target="_blank">https://` + deployment.name + `.on.nbunicorn.com</a>
                                             
                                             </small>
                                             </h6>
@@ -367,7 +372,7 @@
                                                 </div>
                                                 <div class="btn-group btn-group-sm" role="group">
                                                     <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
-                                                    <button href="#" class="btn btn-outline-danger btn-sm" onclick="teardown(this, '`+ deployment +`')">Teardown</button>
+                                                    <button href="#" class="btn btn-danger btn-sm" onclick="teardown(this, '`+ deployment.name +`')">Teardown</button>
                                                 </div>
                                               </small>
                                             </div>
