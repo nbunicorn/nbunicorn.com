@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
     <style tyoe="text/css">
       #logo { 
         background-image: url(./img/nbunicorn-text-no-margin.png);
@@ -94,6 +95,8 @@
 
         var formSignup = document.getElementById("signup");
         var formDeploy = document.getElementById("deploy");
+
+        var selectRedeploy = document.getElementById("select-redeploy");
 
         // listeners
 
@@ -372,6 +375,7 @@
                                                     <button href="#" class="btn btn-outline-dark btn-sm" disabled>Download</button>
                                                 </div>
                                                 <div class="btn-group btn-group-sm" role="group">
+                                                    <button href="#" class="btn btn-outline-dark btn-sm" disabled>Upgrade</button>
                                                     <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
                                                     <button href="#" class="btn btn-danger btn-sm" onclick="teardown(this, '`+ deployment.name +`')">Teardown</button>
                                                 </div>
@@ -569,10 +573,30 @@
           <form id="deploy" action="https://app.nbunicorn.com/deploy" method="post" enctype="multipart/form-data">
             <div class="form-group">
               <label for="file-notebook">Your notebook</label>
-              <input type="file" name="notebook" class="form-control-file" id="file-notebook">
+              <input type="file" name="notebook" class="form-control-file" id="file-notebook" required>
               <small id="file-notebook-help" class="form-text text-muted">Accepts a Jupyter notebook (.ipynb)</small>
             </div>
             <input type="hidden" name="token" class="form-control-file" id="hidden-token">
+            <p class="text-center">
+              <a class="badge badge-pill badge-light" data-toggle="collapse" href="#expand-advanced" aria-expanded="false" aria-controls="expand-advanced">
+                Advanced Options&nbsp;&nbsp;<i class="fas fa-angle-down"></i>
+              </a>
+            </p>
+            <div class="collapse" id="expand-advanced">
+              <small>
+                <div class="form-group">
+                  <label for="select-redeploy">Redeploy</label>
+                  <select class="form-control form-control-sm" id="select-redeploy" disabled>
+                    <option value="">New Deployment</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="file-requirements">Required packages</label>
+                  <input type="file" name="requirements" class="form-control-file" id="file-requirements" disabled>
+                  <small id="file-requirements-help" class="form-text text-muted">Accepts a pip requirements.txt</small>
+                </div>
+               </small> 
+            </div>
             <button type="submit" class="btn btn-dark" id="submit-deploy" style="width: 77px;">Deploy</button>
             <button type="submit" class="btn btn-dark" id="submit-deployed" style="width: 77px;display: none;" disabled>
               <span class="spinner-border spinner-border-sm" role="status"></span>
