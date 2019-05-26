@@ -235,11 +235,10 @@
               loadDeployments();
 
               // remove torndown deployment just in case the request hasn't caught up yet
-              if ( document.getElementById(project) !== null ){
-
-                document.getElementById(project).remove();
-
-              }
+              // update: this is now being handled by status logic
+              // if ( document.getElementById(project) !== null ){
+              //   document.getElementById(project).remove();
+              // }
 
             })
             .catch(function (error) {
@@ -276,7 +275,7 @@
           loadDeployments();
         }
 
-        function loadDeployments(token){
+        function loadDeployments(){
 
           // animate deploy button
           submitDeploy.style.display = 'none';
@@ -346,57 +345,97 @@
 
                 }
 
+                var triggerDeploymentRefresh = false;
+
+                // all current nodes
+                var nodesToRemove = Array.prototype.map.call(document.getElementById('list-deployments').childNodes, el => el.id);
+
                 r.deployments.forEach(function(deployment) {
+
+                  console.log(deployment);
+
+                  // dont remove nodes that are in the latest list
+                  nodesToRemove = nodesToRemove.filter(e => e !== deployment.name);
+
+                  if (deployment.status != "available"){
+                    // must be deploying, tearing down or upgrading, so refresh required
+                    triggerDeploymentRefresh = true;
+                  }
+
+                  var optionNode = document.createElement('option');
+                  optionNode.text = deployment.name;
+                  selectRedeploy.appendChild(optionNode);
+
+
+                  var deploymentNode = document.createElement('div');
+                  deploymentNode.classList = ["card", "border-light"];
+                  deploymentNode.id = deployment.name;
+                  deploymentNode.style.marginTop = 0;
+
+                  if (deployment.status == 'available') {
+                    var deploymentStatusBadge = `<a href="https://` + deployment.name + `.on.nbunicorn.com" class="align-middle badge badge-dark float-right" target="_blank">https://` + deployment.name + `.on.nbunicorn.com</a>`;
+                  } else {
+                    if (deployment.status == 'deploy'){
+                      var displayStatus = 'Deploying';
+                    } else if (deployment.status == 'teardown'){
+                      var displayStatus = 'Tearing down';
+                    } else if (deployment.status == 'upgrade'){
+                      var displayStatus = 'Upgrading';
+                    } 
+                    var deploymentStatusBadge = `<span class="float-right"><span class="spinner-grow spinner-grow-sm" role="status"></span>&nbsp;` + displayStatus + `</span>`;
+                  }
+
+                  deploymentNode.innerHTML = `<h6 class="card-header"><small><b>
+                  ` + deployment.name + `</b>` + deploymentStatusBadge + `</small>
+                                          </h6>
+                                          <div class="card-body  deployment-buttons">
+                                            <small>
+                                              <div class="btn-group btn-group-sm" role="group">
+                                                  <button href="#" class="btn btn-outline-dark btn-sm" disabled>Download</button>
+                                              </div>
+                                              <div class="btn-group btn-group-sm" role="group">
+                                                  <button href="#" class="btn btn-outline-dark btn-sm" disabled>Upgrade</button>
+                                                  <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
+                                                  <button href="#" class="btn btn-danger btn-sm" onclick="teardown(this, '`+ deployment.name +`')">Teardown</button>
+                                              </div>
+                                            </small>
+                                          </div>
+
+                                          
+                                          <ul class="list-group list-group-flush">
+                                          <small>
+                                            <li class="list-group-item">Available endpoints will display here in a future release.</li>
+                                             </small>
+                                          </ul>
+
+                                         
+                                          `; 
 
                   // if deployment not displayed
                   if ( document.getElementById(deployment.name) === null ){
 
-                    console.log(deployment);
-
-                    var optionNode = document.createElement('option');
-                    optionNode.text = deployment.name;
-                    selectRedeploy.appendChild(optionNode);
-
-
-                    var deploymentNode = document.createElement('div');
-                    deploymentNode.classList = ["card", "border-light"];
-                    deploymentNode.id = deployment.name;
-                    deploymentNode.style.marginTop = 0;
-
-                    deploymentNode.innerHTML = `<h6 class="card-header"><small><b>
-                    ` + deployment.name + `</b>
-                                              <a href="https://` + deployment.name + `.on.nbunicorn.com" class="align-middle badge badge-dark float-right" target="_blank">https://` + deployment.name + `.on.nbunicorn.com</a>
-                                            
-                                            </small>
-                                            </h6>
-                                            <div class="card-body  deployment-buttons">
-                                              <small>
-                                                <div class="btn-group btn-group-sm" role="group">
-                                                    <button href="#" class="btn btn-outline-dark btn-sm" disabled>Download</button>
-                                                </div>
-                                                <div class="btn-group btn-group-sm" role="group">
-                                                    <button href="#" class="btn btn-outline-dark btn-sm" disabled>Upgrade</button>
-                                                    <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
-                                                    <button href="#" class="btn btn-danger btn-sm" onclick="teardown(this, '`+ deployment.name +`')">Teardown</button>
-                                                </div>
-                                              </small>
-                                            </div>
-
-                                            
-                                            <ul class="list-group list-group-flush">
-                                            <small>
-                                              <li class="list-group-item">Available endpoints will display here in a future release.</li>
-                                               </small>
-                                            </ul>
-
-                                           
-                                            `;  
+                     
                     listDeployments.appendChild(deploymentNode);
+
+                  // otherwise update existing
+                  } else {
+
+                    document.getElementById(deployment.name).replaceWith(deploymentNode);
 
                   }
                   
                 });
 
+                // cleanup nodes
+                nodesToRemove.forEach(function(node){
+                  document.getElementById(node).remove();
+                });
+
+
+                if (triggerDeploymentRefresh) {
+                  //console.log('auto-refresh in 15 seconds...');
+                  setTimeout( loadDeployments, 15000 ); // 15 seconds
+                }
               }
 
             })
