@@ -102,6 +102,7 @@
         var formDeploy = document.getElementById("deploy");
 
         var selectRedeploy = document.getElementById("select-redeploy");
+        var selectVersion = document.getElementById("select-version");
 
         // listeners
 
@@ -165,12 +166,31 @@
 
           var url = new URL("https://app.nbunicorn.com/deploy"),
               queryParams = {token: auth.accessToken}
+
+          // if redploying exising project, add that param
+          if (selectRedeploy.value != "") {
+            queryParams.existing_project = selectRedeploy.value;
+          }
+
+          // if setting runtime version, add that param
+          if (selectVersion.value != "") {
+            queryParams.version = selectVersion.value;
+          }
+
+          // process params
           Object.keys(queryParams).forEach(key => url.searchParams.append(key, queryParams[key]));
-
-          var notebook = document.getElementById('file-notebook').files[0];
-
+          
           var formData = new FormData();
+
+          // attach notebook
+          var notebook = document.getElementById('file-notebook').files[0];
           formData.append('notebook', notebook);
+
+          // attach requirements if specified
+          var requirements = document.getElementById('file-requirements').files[0];
+          if (requirements != null) {
+            formData.append('requirements.txt', requirements);
+          }
 
           var requestParams = {
             method: "POST",
@@ -278,6 +298,53 @@
 
           loadDeployer();
           loadDeployments();
+          loadVersions();
+        }
+
+        function loadVersions(){
+
+          var url = new URL("https://app.nbunicorn.com/versions"),
+              queryParams = {token: auth.accessToken}
+          Object.keys(queryParams).forEach(key => url.searchParams.append(key, queryParams[key]));
+
+          var requestParams = {
+            method: "GET",
+            mode: "cors"
+          };
+
+          // async 
+          fetch(url, requestParams)
+            .then(function (data) {
+
+              return data.json();
+
+            })
+            .then(function (r) {
+ 
+              r.versions.forEach(function(version) {
+
+                // populate versions field
+                var optionNode = document.createElement('option');
+                optionNode.text = version;
+                optionNode.value = version;
+
+                if (selectVersion.querySelector("[value='"+version+"']") == null){
+                  selectVersion.appendChild(optionNode);
+                }
+
+              });
+
+            })
+            .catch(function (error) {
+
+              console.log('Request failed', error);
+
+            })
+            .finally(function(){
+
+              //
+
+            });
         }
 
         function loadDeployments(){
@@ -367,11 +434,15 @@
                     triggerDeploymentRefresh = true;
                   }
 
+                  // populate redeploy field
                   var optionNode = document.createElement('option');
                   optionNode.text = deployment.name;
-                  selectRedeploy.appendChild(optionNode);
+                  optionNode.value = deployment.name;
+                  if (selectRedeploy.querySelector("[value='"+deployment.name+"']") == null){
+                    selectRedeploy.appendChild(optionNode);
+                  }
 
-
+                  // populate deployemnt cards
                   var deploymentNode = document.createElement('div');
                   deploymentNode.classList = ["card", "border-light"];
                   deploymentNode.id = deployment.name;
@@ -442,6 +513,14 @@
                 // cleanup nodes
                 nodesToRemove.forEach(function(node){
                   document.getElementById(node).remove();
+
+                  // populate redeploy field
+                  var optionNode = document.createElement('option');
+                  optionNode.text = node;
+                  optionNode.value = node;
+                  if (selectRedeploy.querySelector("[value='"+node+"']") == null){
+                    selectRedeploy.removeChild(optionNode);
+                  }
                 });
 
 
@@ -638,13 +717,19 @@
               <small>
                 <div class="form-group">
                   <label for="select-redeploy">Redeploy</label>
-                  <select class="form-control form-control-sm" id="select-redeploy" disabled>
+                  <select class="form-control form-control-sm" id="select-redeploy" name="existing_project">
                     <option value="">New Deployment</option>
                   </select>
                 </div>
                 <div class="form-group">
+                  <label for="select-redeploy">Runtime version</label>
+                  <select class="form-control form-control-sm" id="select-version" name="version">
+                    <option value="">Latest</option>
+                  </select>
+                </div>
+                <div class="form-group">
                   <label for="file-requirements">Required packages</label>
-                  <input type="file" name="requirements" class="form-control-file" id="file-requirements" disabled>
+                  <input type="file" name="requirements.txt" class="form-control-file" id="file-requirements">
                   <small id="file-requirements-help" class="form-text text-muted">Accepts a pip requirements.txt</small>
                 </div>
                </small> 
