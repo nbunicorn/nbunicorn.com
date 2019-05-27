@@ -56,6 +56,11 @@
       .deployment-buttons button {
         width: 90px;
       }
+
+      .deployment-buttons {
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
     </style>
     <script type="text/javascript">
 
@@ -390,13 +395,21 @@
                                           </h6>
                                           <div class="card-body  deployment-buttons">
                                             <small>
-                                              <div class="btn-group btn-group-sm" role="group">
-                                                  <button href="#" class="btn btn-outline-dark btn-sm" disabled>Download</button>
+                                              <div class="form-group">
+                                                <button href="https://` + deployment.name + `.on.nbunicorn.com/download" class="btn btn-outline-dark btn-sm">Download</button>
+                                                <small class="form-text text-muted">Download the deployed Jupyter notebook</small>
                                               </div>
-                                              <div class="btn-group btn-group-sm" role="group">
-                                                  <button href="#" class="btn btn-outline-dark btn-sm" disabled>Upgrade</button>
-                                                  <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
-                                                  <button href="#" class="btn btn-danger btn-sm" onclick="teardown(this, '`+ deployment.name +`')">Teardown</button>
+                                              <div class="form-group">
+                                                <button href="#" class="btn btn-outline-dark btn-sm" disabled>Upgrade</button>
+                                                <small class="form-text text-muted">Upgrade (or downgrade) the deployment runtime</small>
+                                              </div>
+                                              <div class="form-group">
+                                                <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
+                                                <small class="form-text text-muted">Redeploy a new notebook at the same URL</small>
+                                              </div>
+                                              <div class="form-group">
+                                                <button href="#" class="btn btn-danger btn-sm" onclick="teardown(this, '`+ deployment.name +`')">Teardown</button>
+                                                <small class="form-text text-muted">Completely remove this deployment</small>
                                               </div>
                                             </small>
                                           </div>
