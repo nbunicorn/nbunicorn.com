@@ -73,11 +73,6 @@
       .deployment-buttons .btn {
         width: 90px;
       }
-
-      .deployment-buttons {
-        margin-bottom: 0;
-        padding-bottom: 0;
-      }
     </style>
     <script type="text/javascript">
 
@@ -533,7 +528,7 @@
 
       <div id="` + deployment.name + `-management" class="tab-pane fade" role="tabpanel">
         
-         <small>
+         <small class="deployment-buttons">
           <div class="form-group">
             <a href="https://` + deployment.name + `.on.nbunicorn.com/download" class="btn btn-outline-dark btn-sm">Download</a>
             <small class="form-text text-muted">Download the deployed Jupyter notebook</small>
