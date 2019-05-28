@@ -459,14 +459,14 @@
                     selectRedeploy.appendChild(optionNode);
                   }
 
-                  // populate deployemnt cards
+                  // populate deployment cards
                   var deploymentNode = document.createElement('div');
                   deploymentNode.classList = ["card", "border-light"];
                   deploymentNode.id = deployment.name;
                   deploymentNode.style.marginTop = 0;
 
                   if (deployment.status == 'available') {
-                    var deploymentStatusBadge = `<a href="https://` + deployment.name + `.on.nbunicorn.com" class="align-middle badge badge-dark float-right" target="_blank">https://` + deployment.name + `.on.nbunicorn.com</a>`;
+                    var deploymentStatusBadge = `<span class="float-right">Active</span>`;
                   } else {
                     if (deployment.status == 'deploy'){
                       var displayStatus = 'Deploying';
@@ -478,36 +478,104 @@
                     var deploymentStatusBadge = `<span class="float-right"><span class="spinner-grow spinner-grow-sm" role="status"></span>&nbsp;` + displayStatus + `</span>`;
                   }
 
-                  deploymentNode.innerHTML = `<h6 class="card-header"><small><b>
-                  ` + deployment.name + `</b>` + deploymentStatusBadge + `</small>
-                                          </h6>
-                                          <div class="card-body  deployment-buttons">
-                                            <small>
-                                              <div class="form-group">
-                                                <a href="https://` + deployment.name + `.on.nbunicorn.com/download" class="btn btn-outline-dark btn-sm">Download</a>
-                                                <small class="form-text text-muted">Download the deployed Jupyter notebook</small>
-                                              </div>
-                                              <div class="form-group">
-                                                <button href="#" class="btn btn-outline-dark btn-sm" disabled>Upgrade</button>
-                                                <small class="form-text text-muted">Upgrade (or downgrade) the deployment runtime</small>
-                                              </div>
-                                              <div class="form-group">
-                                                <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
-                                                <small class="form-text text-muted">Redeploy a new notebook at the same URL</small>
-                                              </div>
-                                              <div class="form-group">
-                                                <button href="#" class="btn btn-danger btn-sm" onclick="teardown(this, '`+ deployment.name +`')">Teardown</button>
-                                                <small class="form-text text-muted">Completely remove this deployment</small>
-                                              </div>
-                                            </small>
-                                          </div>
+                  deploymentNode.innerHTML = `<h6 class="card-header" style="padding-bottom:0px;"><small><b>
+                  ` + deployment.name + `</b>` + deploymentStatusBadge + `
 
+<p>
+                   <div class="nav nav-tabs justify-content-center" role="tablist" style="border-bottom:none;">
+    
+
+
+      <a class="nav-item nav-link active" data-toggle="pill" data-target="#` + deployment.name + `-summary" role="tab">
+        Status
+      </a>
+
+      <a class="nav-item nav-link " data-toggle="pill" data-target="#` + deployment.name + `-management" role="tab">
+        Manage
+      </a>
+
+      <a class="nav-item nav-link " data-toggle="pill" data-target="#` + deployment.name + `-endpoints" role="tab">
+        Endpoints
+      </a>
+
+      <a class="nav-item nav-link " data-toggle="pill" data-target="#` + deployment.name + `-integrations" role="tab">
+        Integrate
+      </a>
+     </div>
+
+     </small>
+   </h6>
                                           
-                                          <ul class="list-group list-group-flush">
-                                          <small>
-                                            <li class="list-group-item">Available endpoints will display here in a future release.</li>
-                                             </small>
-                                          </ul>
+                                          
+                                          
+
+
+
+    
+ 
+
+        <div class="card-body">
+
+
+    <div class="tab-content">
+
+
+      <div id="` + deployment.name + `-summary" class="tab-pane fade show active" role="tabpanel">
+        
+          <ul class="list-group list-group-flush">
+          <small>
+            <li class="list-group-item"><a href="https://` + deployment.name + `.on.nbunicorn.com" class="" target="_blank">https://` + deployment.name + `.on.nbunicorn.com</a></li>
+            <li class="list-group-item">HTTP / HTTPS health checks will display here in a future release.</li>
+          </small>
+        </ul>
+        
+      </div>
+
+      <div id="` + deployment.name + `-management" class="tab-pane fade" role="tabpanel">
+        
+         <small>
+          <div class="form-group">
+            <a href="https://` + deployment.name + `.on.nbunicorn.com/download" class="btn btn-outline-dark btn-sm">Download</a>
+            <small class="form-text text-muted">Download the deployed Jupyter notebook</small>
+          </div>
+          <div class="form-group">
+            <button href="#" class="btn btn-outline-dark btn-sm" disabled>Upgrade</button>
+            <small class="form-text text-muted">Upgrade (or downgrade) the deployment runtime</small>
+          </div>
+          <div class="form-group">
+            <button href="#" class="btn btn-outline-dark btn-sm" disabled>Redeploy</button>
+            <small class="form-text text-muted">Redeploy a new notebook at the same URL</small>
+          </div>
+          <div class="form-group">
+            <button href="#" class="btn btn-danger btn-sm" onclick="teardown(this, '`+ deployment.name +`')">Teardown</button>
+            <small class="form-text text-muted">Completely remove this deployment</small>
+          </div>
+        </small>
+      </div>
+
+
+      <div id="` + deployment.name + `-endpoints" class="tab-pane fade" role="tabpanel">
+        <ul class="list-group list-group-flush">
+          <small>
+            <li class="list-group-item">Available endpoints will display here in a future release.</li>
+          </small>
+        </ul>
+      </div>
+
+      <div id="` + deployment.name + `-integrations" class="tab-pane fade" role="tabpanel">
+        <ul class="list-group list-group-flush">
+          <small>
+            <li class="list-group-item">Available integrations will display here in a future release.</li>
+            <li class="list-group-item">nbunicorn.js</li>
+            <li class="list-group-item">JavaScript code sample</li>
+            <li class="list-group-item">Python code sample</li>
+            <li class="list-group-item">Bash code sample</li>
+          </small>
+        </ul>
+      </div>
+    </div>
+  </div>
+
 
                                          
                                           `; 
