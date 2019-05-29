@@ -517,12 +517,24 @@
 
       <div id="` + deployment.name + `-summary" class="tab-pane fade show active" role="tabpanel">
         
-          <ul class="list-group list-group-flush">
-          <small>
-            <li class="list-group-item"><a href="https://` + deployment.name + `.on.nbunicorn.com" class="" target="_blank">https://` + deployment.name + `.on.nbunicorn.com</a></li>
-            <li class="list-group-item">HTTP / HTTPS health checks will display here in a future release.</li>
-          </small>
-        </ul>
+      
+
+          <div class="row">
+            <label class="col-sm-2 col-form-label"><small>URL</small></label>
+            <div class="col-sm-10 form-control-plaintext">
+              <a href="https://` + deployment.name + `.on.nbunicorn.com"  target="_blank" class="badge badge-light">https://` + deployment.name + `.on.nbunicorn.com</a>
+            </div>
+          </div>
+          <div class="row">
+            <label class="col-sm-2 col-form-label"><small>Health</small></label>
+            <div class="col-sm-10 form-control-plaintext">
+            <small>
+              <span class="` + healthCheckClass(deployment.name, 'http') + `" id="` + healthCheck(deployment.name, 'http') + `">&#9679;</span>&nbsp;&nbsp;HTTP<br>
+              <span class="` + healthCheckClass(deployment.name, 'http') + `" id="` + healthCheck(deployment.name, 'https') + `">&#9679;</span>&nbsp;&nbsp;HTTPS 
+            </small>
+            </div>
+          </div>
+      
         
       </div>
 
@@ -574,6 +586,63 @@
 
                                          
                                           `; 
+
+                  function healthCheck(deployment, scheme){
+                    var id = scheme + "-health-" + deployment;
+
+                    var url = new URL(scheme + "://" + deployment + ".on.nbunicorn.com/health");
+                
+                    var requestParams = {
+                      method: "GET",
+                      mode: "cors"
+                    };
+
+                    // async 
+                    fetch(url, requestParams)
+                      .then(function (data) {
+
+                        
+
+                        if (data.status == 200){
+
+                          
+                          document.getElementById(id).className = 'text-success';
+
+                        } else {
+
+                          document.getElementById(id).className = 'text-danger';
+
+                        }
+
+                        
+
+                      })
+                      .catch(function (error) {
+
+                      
+                        document.getElementById(id).className = 'text-warning';
+
+                        console.log('Healthcheck failed, retrying in 5s...');
+
+                        //console.log('auto-refresh in 5 seconds...');
+                        setTimeout( healthCheck, 5000, deployment, scheme ); // 5 seconds
+
+                      });
+
+                    return id;
+                  }
+
+                  function healthCheckClass(deployment, scheme){
+                    var id = scheme + "-health-" + deployment;
+
+                    var currentNode = document.getElementById(id);
+
+                    if (currentNode == null){
+                      return 'text-light';
+                    } else {
+                      return currentNode.className;
+                    }
+                  }
 
                   // if deployment not displayed
                   if ( document.getElementById(deployment.name) === null ){
