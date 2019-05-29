@@ -653,7 +653,14 @@
                   // otherwise update existing
                   } else {
 
-                    document.getElementById(deployment.name).replaceWith(deploymentNode);
+                    var currentNode = document.getElementById(deployment.name);
+                    console.log(currentNode);
+                    console.log(deploymentNode);
+
+                    if (!currentNode.isEqualNode(deploymentNode)){
+
+                      currentNode.replaceWith(deploymentNode);
+                    }
 
                   }
                   
