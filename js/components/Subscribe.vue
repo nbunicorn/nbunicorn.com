@@ -9,7 +9,7 @@
       <b-card-text><strong>nbunicorn</strong> is incubating with new users by invitation. Subscribe and we'll keep you up to date on our progress.</b-card-text>
       <b-form action="https://docs.google.com/forms/d/e/1FAIpQLSdvUx4Xur604v9E5SuaRrUPAx6Cgd-mlgcPWNvtAoADBc-yJQ/viewform?usp=pp_url">
         <b-input-group>
-          <b-form-input type="email" :value="email" name="entry.1106452456" placeholder="email@address.com" required></b-form-input>
+          <b-form-input type="email" :value="user.payload.idTokenPayload.email" name="entry.1106452456" placeholder="email@address.com" required></b-form-input>
           <b-input-group-append>
             <b-button variant="dark" type="submit">Subscribe</b-button>
           </b-input-group-append>
@@ -21,7 +21,7 @@
 
 <script>
   module.exports = {
-    props: ['email'],
+    props: ['user'],
     data () {
       return {
         articles: [

@@ -5,7 +5,7 @@
       <new-deployment :deployments="deployments" v-if="user.canDeploy && user.token" :token="user.token"></new-deployment>
       <deployments :deployments="deployments" :statistics="statistics" v-if="user.token"></deployments>
       <deployment v-for="deployment in deployments" :key="deployment.name" :deployment="deployment" :token="user.token"></deployment>
-      <subscribe :email="user.payload.idTokenPayload.email"></subscribe>
+      <subscribe :user="user"></subscribe>
       <footer-links></footer-links>
     </b-container>
   </div>
@@ -22,7 +22,11 @@
         },
         user: {
           token: null,
-          payload: null,
+          payload: {
+            idTokenPayload: {
+              email: null
+            }
+          },
           canDeploy: null
         },
         auth: null,
@@ -164,7 +168,9 @@
       this.handleAuthentication();
 
       // infrequent refresh 30 seconds
-      this.timer = setInterval(this.checkDeployments, 30000, this.user.token);
+      this.timer = setInterval(() => {
+        if(this.user.token != null) this.checkDeployments(this.user.token);
+      }, 30000);
 
       // refresh on action
       this.$root.$on('refresh', () => {
