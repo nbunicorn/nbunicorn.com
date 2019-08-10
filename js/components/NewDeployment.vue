@@ -16,7 +16,7 @@
           <b-form-file name="notebook" v-model="notebook" required></b-form-file>
         </b-form-group>
 
-        <b-button v-b-toggle.advanced class="m-1"  variant="dark">Options</b-button>
+        
 
         <b-collapse id="advanced">
           <b-form-group label="Redeploy" description="Optionally replace an existing deployment">
@@ -34,6 +34,9 @@
         </b-collapse>
          
         <input type="hidden" name="token" :value="token"> 
+
+        <b-button v-b-toggle.advanced class="m-1"  variant="dark">Options</b-button>
+        
         <b-button variant="dark" @click.prevent="deploy" type="submit">Deploy</b-button>
       
       </b-form>

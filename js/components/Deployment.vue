@@ -1,7 +1,7 @@
 <template>
   <b-card no-body header-tag="header">
     <span slot="header" class="d-flex justify-content-between align-items-center">{{ deployment.name }} <b-spinner small v-if="updating" label="Loading..."></b-spinner></span>
-    <b-tabs card vertical pills small>
+    <b-tabs card pills small>
       <b-tab title="Manage" active>
         <b-list-group flush>
           <b-list-group-item>
