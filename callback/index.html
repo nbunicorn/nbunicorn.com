@@ -10,7 +10,12 @@
         var auth = new auth0.WebAuth(authConfig);
         auth.parseHash((err, authResult) => {
 
-          if (err) return err;
+          alert(window.location.hash);
+
+          if (err) {
+            alert(err);
+            return err
+          };
 
           // if just logged in otherwise these will not be set
           if (authResult && authResult.accessToken && authResult.idToken) {
