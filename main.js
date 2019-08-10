@@ -31,7 +31,7 @@ var vm = new Vue({
       clientID: 'hdVkAV2OPzugycruV7FY0emQlVrVrFDL',
       responseType: 'token id_token',
       scope: 'openid email profile',
-      redirectUri: window.location.origin + '/callback'
+      redirectUri: window.location.origin + '/callback/'
     };
     this.$root.auth = new auth0.WebAuth(this.authConfig);
     localStorage.setItem('authConfig', JSON.stringify(this.authConfig));
