@@ -35,6 +35,7 @@ var vm = new Vue({
     };
     this.$root.auth = new auth0.WebAuth(this.authConfig);
     localStorage.setItem('authConfig', JSON.stringify(this.authConfig));
+    alert('authConfig set');
   },
   beforeMount(){
     this.$router.addRoutes(this.routes);

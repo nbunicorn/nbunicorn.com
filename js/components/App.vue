@@ -39,17 +39,22 @@
     methods: {
       handleAuthentication () {
         if (localStorage.hasOwnProperty('user')) {
+          alert('user found');
           this.resume(JSON.parse(localStorage.getItem('user')));
           this.checkDeploy(this.user.token);
           this.checkDeployments(this.user.token);
-        }        
+        } else {
+          alert('user not found');
+        }      
       },
       resume (user) {
         // if not expired restore user
         if (new Date().getTime() < parseInt(user.payload.expiresAt)){
+          alert('user session restored');
           this.user = user;
         } else {
           // attempt re-auth
+          alert('user session cleared, attempting re-auth');
           localStorage.removeItem('user');
           this.$root.auth.authorize();
         }

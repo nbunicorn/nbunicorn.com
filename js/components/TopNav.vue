@@ -55,6 +55,7 @@
       },
       login(){
         localStorage.setItem('callbackRedirect', window.location.href);
+        alert('callbackRedirect set');
         this.$root.auth.authorize();
       }
     },
