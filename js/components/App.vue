@@ -130,7 +130,7 @@
       // infrequent refresh 30 seconds
       this.timer = setInterval(() => {
         if(this.user.token != null) this.checkDeployments(this.user.token);
-      }, 30000);
+      }, 60000);
 
       // refresh on action
       this.$root.$on('refresh', () => {

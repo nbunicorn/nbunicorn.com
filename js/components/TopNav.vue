@@ -26,7 +26,7 @@
     </b-alert>
 
     <div id='logo'></div>
-    <p class="lead">The easiest way from notebook to impact, so you can focus more on <strong>{{ more }}</strong>, and less on <strong>{{ less }}</strong>.</p>
+    <p class="lead">The easiest way from notebook to impact, so you can focus more on <strong>{{ more }}</strong>, and less on <strong>{{ less }}{{ dot }}</strong></p>
   </div>
 </template>
 
@@ -36,7 +36,22 @@
     data () {
       return {
         more: 'data science',
-        less: 'infrastructure'
+        less: 'infrastructure',
+        timer: null,
+        lessBag: [
+          'infrastructure',
+          'cloud services',
+          'security',
+          'auto-scaling',
+          'containerisation',
+          'micro-services',
+          'authorisation',
+          'access management',
+          'web development',
+          'APIs',
+          'high availability'
+        ],
+        dot: '.'
       }
     },
     computed: {
@@ -60,10 +75,37 @@
       login(){
         localStorage.setItem('callbackRedirect', window.location.href);
         this.$root.auth.authorize();
+      },
+      eraseStep(){
+        if ( this.less.length > 0 ){
+          this.dot = null;
+          this.less = this.less.slice(0, -1);
+          setTimeout(()=>{
+            this.eraseStep();
+          } ,40);
+        } else {
+          var next = null;
+          while ((next == null) || (next === this.less)){
+            next = this.lessBag[(Math.random() * this.lessBag.length) | 0]
+          };
+          this.drawStep(next);
+        }
+      },
+      drawStep(next){
+        if ( next.length > 0 ){
+          this.less = this.less + next.slice(0, 1);
+          setTimeout(()=>{
+            this.drawStep(next.substring(1));
+          } ,40);
+        } else {
+          this.dot = '.';
+        }
       }
     },
     created () {
-      //console.log(this.auth);
+      this.timer = setInterval(() => {
+        this.eraseStep();
+      }, 5000);
     }
   }
 </script>

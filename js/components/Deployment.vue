@@ -50,9 +50,56 @@
         </b-list-group>
       </b-tab>
       <b-tab title="Integrations">
-        <b-card-text>JavaScript/nbunicorn.js</b-card-text>
-        <b-card-text>Python requests</b-card-text>
-        <b-card-text>Bash curl</b-card-text>
+        <b-list-group flush>
+          <b-list-group-item>
+            <h6 class="mb-3">JavaScript with nbunicorn.js</h6>
+            <b-form>
+              <b-form-group label-cols="2" label-size="sm" label="URL" label-for="nbujsurl">
+                <b-form-input id="nbujsurl" v-model="nbujsUrl" disabled size="sm"></b-form-input>
+              </b-form-group>
+              <b-form-group label-cols="2" label-size="sm" label="Script Tag" label-for="nbujsscript">
+                <b-form-input id="nbujsscript" v-model="nbujsEmbed"disabled size="sm"></b-form-input>
+              </b-form-group>
+              <b-form-group label-cols="2" label-size="sm" label="Example" label-for="nbujssample">
+                <b-form-textarea
+                  disabled
+                  size="sm"
+                  rows="10"
+                  max-rows="10"
+                  v-model="examples.html"
+                ></b-form-textarea>
+              </b-form-group>
+            </b-form>
+          </b-list-group-item>
+          <b-list-group-item>
+            <h6 class="mb-3">Python with requests</h6>
+            <b-form>
+              <b-form-group label-cols="2" label-size="sm" label="Example" label-for="nbupysample">
+                <b-form-textarea
+                  disabled
+                  size="sm"
+                  rows="10"
+                  max-rows="10"
+                  v-model="examples.python"
+                ></b-form-textarea>
+              </b-form-group>
+            </b-form>
+          </b-list-group-item>
+          <b-list-group-item>
+            <h6 class="mb-3">Bash with curl</h6>
+            <b-form>
+              <b-form-group label-cols="2" label-size="sm" label="Example" label-for="nbushsample">
+                <b-form-textarea
+                  disabled
+                  size="sm"
+                  rows="10"
+                  max-rows="10"
+                  v-model="examples.bash"
+                ></b-form-textarea>
+              </b-form-group>
+            </b-form>
+          </b-list-group-item>
+        </b-list-group>
       </b-tab>
     </b-tabs>
   </b-card>
@@ -67,7 +114,12 @@
           HTTP: null,
           HTTPS: null
         },
-        timer: null
+        timer: null,
+        examples: {
+          html: null,
+          python: null,
+          bash: null
+        }
       }
     },
     watch: {
@@ -82,9 +134,6 @@
           console.log("Clearing quick refresh timer");
           clearInterval(this.timer);
         }
-      },
-      token() {
-        this.checkHealth();
       }
     },
     computed: {
@@ -93,6 +142,12 @@
       },
       downloadUrl() {
         return this.url + '/download';
+      },
+      nbujsUrl() {
+        return this.url + '/nbunicorn.js';
+      },
+      nbujsEmbed() {
+        return "<script src=\"" + this.nbujsUrl + "\"><\/script>";
       },
       httpVariant() {
         return this.statusColourMapper(this.health.HTTP);
@@ -111,6 +166,72 @@
       },
       setHealth (setting) {
         this.health = setting;
+      },
+      setHtml (html){
+        this.examples.html = html;
+      },
+      setPython (python){
+        this.examples.python = python;
+      },
+      setBash (bash){
+        this.examples.bash = bash;
+      },
+      checkHtml (){
+        var url = new URL(this.url + '/sample.html');
+        var requestParams = {
+          method: "GET",
+          mode: "cors"
+        };
+
+        // async 
+        fetch(url, requestParams)
+          .then(function (data) {
+            return data.text();
+          })
+          .then((r) => {
+            this.setHtml(r);
+          })
+          .catch(function (error) {
+            console.log('Request failed', error);
+          });
+      },
+      checkPython (){
+        var url = new URL(this.url + '/sample.py');
+        var requestParams = {
+          method: "GET",
+          mode: "cors"
+        };
+
+        // async 
+        fetch(url, requestParams)
+          .then(function (data) {
+            return data.text();
+          })
+          .then((r) => {
+            this.setPython(r);
+          })
+          .catch(function (error) {
+            console.log('Request failed', error);
+          });
+      },
+      checkBash (){
+        var url = new URL(this.url + '/sample.sh');
+        var requestParams = {
+          method: "GET",
+          mode: "cors"
+        };
+
+        // async 
+        fetch(url, requestParams)
+          .then(function (data) {
+            return data.text();
+          })
+          .then((r) => {
+            this.setBash(r);
+          })
+          .catch(function (error) {
+            console.log('Request failed', error);
+          });
       },
       checkHealth (){
 
@@ -202,6 +323,9 @@
     },
     created(){
       this.checkHealth();
+      this.checkHtml();
+      this.checkPython();
+      this.checkBash();
     },
     beforeDestroy () {
       clearInterval(this.timer);
