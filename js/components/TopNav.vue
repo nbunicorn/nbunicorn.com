@@ -51,10 +51,10 @@
       logout(){
         // clear credentials and refresh
         localStorage.removeItem('user');
-        localStorage.setItem('callbackRedirect', window.location.href);
         document.location.reload();
       },
       login(){
+        localStorage.setItem('callbackRedirect', window.location.href);
         this.$root.auth.authorize();
       }
     },
