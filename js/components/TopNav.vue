@@ -1,8 +1,18 @@
 <template>
   <div>
-    <div class="clearfix" style="height: 47px;">
-      <b-button @click="click" variant="light">{{ buttonText }}</b-button>
-    </div>
+    <b-navbar variant="faded" type="light">
+      <b-navbar-nav>
+        <b-nav-item to="/">Home</b-nav-item>
+      </b-navbar-nav>
+      <b-navbar-nav class="ml-auto">
+        <b-nav-item-dropdown right v-if="loggedIn">
+          <!-- Using 'button-content' slot -->
+          <template slot="button-content"><b-img :src="user.payload.idTokenPayload.picture" height="20" width="20" rounded="circle" fluid disabled></b-img>&nbsp;{{ user.payload.idTokenPayload.name }}</template>
+          <b-dropdown-item @click="logout">Sign out</b-dropdown-item>
+        </b-nav-item-dropdown>
+        <b-nav-item v-else @click="login">Login with Github</b-nav-item>
+      </b-navbar-nav>
+    </b-navbar>
 
     <b-alert variant="success" show v-if="(user.token) && (user.canDeploy)">
       <h4 class="alert-heading">Welcome!</h4>
@@ -11,7 +21,7 @@
       You can also always find more information in <a href='https://nbunicorn.readthedocs.io' target='_blank' class="alert-link">our docs</a>.
     </b-alert>
 
-    <b-alert variant="warning" show v-else-if="user.canDeploy !== null">
+    <b-alert variant="warning" show v-else-if="(user.token) && (user.canDeploy !== null)">
       Uh oh. Looks like your account is not authorised for deployment just yet. Join the waitlist below! (<em>Reference:</em> <code>{{ userRef }}</code>)
     </b-alert>
 
@@ -22,10 +32,9 @@
 
 <script>
   module.exports = {
-    props: [ 'user', 'auth' ],
+    props: [ 'user' ],
     data () {
       return {
-        ref: '123',
         more: 'data science',
         less: 'infrastructure'
       }
@@ -34,22 +43,19 @@
       loggedIn () {
         return this.user.token;
       },
-      buttonText () {
-        return this.loggedIn ? 'Logout' : 'Login with GitHub'
-      },
       userRef () {
-        return this.ref;
+        return this.user.payload.idTokenPayload.sub;
       }
     },
     methods: {
-      click(evt){
-        if(this.loggedIn){
-          // clear credentials and refresh
-          localStorage.removeItem('user');
-          document.location.reload();
-        } else {
-          this.auth.authorize();
-        }
+      logout(){
+        // clear credentials and refresh
+        localStorage.removeItem('user');
+        localStorage.setItem('callbackRedirect', window.location.href);
+        document.location.reload();
+      },
+      login(){
+        this.$root.auth.authorize();
       }
     },
     created () {

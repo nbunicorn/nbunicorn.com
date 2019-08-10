@@ -1,18 +1,16 @@
 <template>
-  <div id='app'>
-    <b-container>
-      <top-nav :user="user" :auth="auth"></top-nav>
-      <new-deployment :deployments="deployments" v-if="user.canDeploy && user.token" :token="user.token"></new-deployment>
-      <deployments :deployments="deployments" :statistics="statistics" v-if="user.token"></deployments>
-      <deployment v-for="deployment in deployments" :key="deployment.name" :deployment="deployment" :token="user.token"></deployment>
-      <subscribe :user="user"></subscribe>
-      <footer-links></footer-links>
-    </b-container>
-  </div>
+  <b-container fluid id="main">
+    {{ auth }}
+    <top-nav :user="user"></top-nav>
+    <router-view :user="user" :deployments="deployments" :statistics="statistics"></router-view>
+    <subscribe :user="user"></subscribe>
+    <footer-links></footer-links>
+  </b-container>
 </template>
 
 <script>
   module.exports = {
+    props: [],
     data () {
       return {
         deployments: [],
@@ -29,23 +27,12 @@
           },
           canDeploy: null
         },
-        auth: null,
-        timer: null
-      }
-    },
-    watch: {
-      'user.token': function (token, old) {
-        
-        localStorage.setItem('user', JSON.stringify(this.user));
-        this.checkDeploy(token);
-        this.checkDeployments(token);
+        timer: null,
+        auth: null
       }
     },
     components: {
       TopNav: 'url:./TopNav.vue',
-      NewDeployment: 'url:./NewDeployment.vue',
-      Deployments: 'url:./Deployments.vue',
-      Deployment: 'url:./Deployment.vue',
       Subscribe: 'url:./Subscribe.vue',
       FooterLinks: 'url:./FooterLinks.vue'
     },
@@ -53,29 +40,9 @@
       handleAuthentication () {
         if (localStorage.hasOwnProperty('user')) {
           this.resume(JSON.parse(localStorage.getItem('user')));
-          return true;
-        }
-        
-        this.auth.parseHash((err, authResult) => {
-          if (err) return err;
-
-          // if just logged in otherwise these will not be set
-          if (authResult && authResult.accessToken && authResult.idToken) {
-            // hide hash
-            window.location.hash = '';
-
-            // handle login
-            this.login(authResult);
-          }  
-
-        });
-        
-      },
-      login (authResult) {
-        
-        this.user.token = authResult.accessToken;
-        this.user.payload = authResult;
-        this.user.payload.expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+          this.checkDeploy(this.user.token);
+          this.checkDeployments(this.user.token);
+        }        
       },
       resume (user) {
         // if not expired restore user
@@ -84,7 +51,7 @@
         } else {
           // attempt re-auth
           localStorage.removeItem('user');
-          this.auth.authorize();
+          this.$root.auth.authorize();
         }
       },
       setDeploy (setting) {
@@ -157,13 +124,6 @@
       }
     },
     created () {
-      this.auth = new auth0.WebAuth({
-        domain: 'nbunicorn.auth0.com',
-        clientID: 'hdVkAV2OPzugycruV7FY0emQlVrVrFDL',
-        responseType: 'token id_token',
-        scope: 'openid email profile',
-        redirectUri: window.location.href
-      });
 
       this.handleAuthentication();
 
@@ -184,8 +144,8 @@
 </script>
 
 <style scoped>
-  #app {
-    max-width: 600px;
+  #main {
+    max-width: 700px;
     margin: 10px auto 10px auto;
   }
   .card {

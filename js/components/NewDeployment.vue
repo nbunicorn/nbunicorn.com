@@ -99,7 +99,6 @@
         var formData = new FormData();
 
         // attach notebook
-        console.log(this.notebook);
         formData.append('notebook', this.notebook);
 
         // attach requirements if specified

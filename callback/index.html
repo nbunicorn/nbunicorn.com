@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Auth0 -->
+    <script src="../js/auth0.min.js"></script>
+    <script type="text/javascript">
+      if (localStorage.hasOwnProperty('authConfig')) {
+        var authConfig = JSON.parse(localStorage.getItem('authConfig'));
+        var auth = new auth0.WebAuth(authConfig);
+        auth.parseHash((err, authResult) => {
+
+          if (err) return err;
+
+          // if just logged in otherwise these will not be set
+          if (authResult && authResult.accessToken && authResult.idToken) {
+            // hide hash
+            window.location.hash = '';
+
+            // handle login
+            var user = {};
+            user.token = authResult.accessToken;
+            user.payload = authResult;
+            user.payload.expiresAt = authResult.expiresIn * 1000 + new Date().getTime();
+            user.canDeploy = null;
+
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+          if (localStorage.hasOwnProperty('callbackRedirect')) {
+            window.location.href = localStorage.getItem('callbackRedirect');
+          } else {
+            window.location.href = window.location.origin;
+          }
+        });
+      } else {
+        window.location.href = window.location.origin;
+      }
+    </script>
+  </head>
+</html>

@@ -17,10 +17,10 @@
             <div class="justify-content-between">
               <b-row>
                 <b-col cols="4">
-                  HTTP <b-badge pill :variant="httpVariant">{{ health.HTTP }}</b-badge><b-spinner small v-if="!health.HTTP" label="Loading..."></b-spinner>
+                  <pre>HTTP  <b-badge pill :variant="httpVariant">{{ health.HTTP }}</b-badge><b-spinner small v-if="!health.HTTP" label="Loading..."></b-spinner></pre>
                 </b-col>
                 <b-col cols="4">
-                  HTTPS <b-badge pill :variant="httpsVariant">{{ health.HTTPS }}</b-badge><b-spinner small v-if="!health.HTTPS" label="Loading..."></b-spinner>
+                  <pre>HTTPS <b-badge pill :variant="httpsVariant">{{ health.HTTPS }}</b-badge><b-spinner small v-if="!health.HTTPS" label="Loading..."></b-spinner></pre>
                 </b-col>
               </b-row>
             </div>
