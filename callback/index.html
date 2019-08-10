@@ -5,21 +5,18 @@
     <script src="../js/auth0.min.js"></script>
     <script type="text/javascript">
       if (localStorage.hasOwnProperty('authConfig')) {
-        alert('authConfig found');
+  
         var authConfig = JSON.parse(localStorage.getItem('authConfig'));
         var auth = new auth0.WebAuth(authConfig);
         auth.parseHash((err, authResult) => {
 
-          alert(window.location.hash);
-
           if (err) {
-            alert(err);
+            console.log(err);
             return err
           };
 
           // if just logged in otherwise these will not be set
           if (authResult && authResult.accessToken && authResult.idToken) {
-            alert('logged in');
 
             // hide hash
             window.location.hash = '';
@@ -34,15 +31,12 @@
             localStorage.setItem('user', JSON.stringify(user));
           }
           if (localStorage.hasOwnProperty('callbackRedirect')) {
-            alert('redirect found');
             window.location.href = localStorage.getItem('callbackRedirect');
           } else {
-            alert('default redirect');
             window.location.href = window.location.origin;
           }
         });
       } else {
-        alert('no authConfig found, default redirect');
         window.location.href = window.location.origin;
       }
     </script>
