@@ -52,6 +52,10 @@
         // clear credentials and refresh
         localStorage.removeItem('user');
         document.location.reload();
+
+        this.$root.auth.logout({
+          returnTo: window.location.href
+        });
       },
       login(){
         localStorage.setItem('callbackRedirect', window.location.href);
